@@ -1,0 +1,26 @@
+name: clash-wavedrom
+version: '0.0.0.0'
+synopsis: Render wave diagrams with wavedrom
+description: Please see README.md
+category: Hardware
+author: Joe Hermaszewski
+maintainer: waves@monoid.al
+copyright: 2020 Joe Hermaszewski
+license: BSD3
+github: expipiplus1/clash-wavedrom
+
+extra-source-files:
+  - readme.md
+  - default.nix
+
+dependencies:
+ - base
+ - clash-prelude
+ - aeson
+ - aeson-pretty
+ - singletons
+
+library:
+  source-dirs: src
+  exposed-modules:
+    - Clash.WaveDrom

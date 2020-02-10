@@ -1,0 +1,42 @@
+cabal-version: 1.12
+
+-- This file has been generated from package.yaml by hpack version 0.32.0.
+--
+-- see: https://github.com/sol/hpack
+--
+-- hash: 38eb26940e4ee0900971bd8ba7b7b1a70d0170e2e0b5120c17e85c99475c6f4b
+
+name:           clash-wavedrom
+version:        0.0.0.0
+synopsis:       Render wave diagrams with wavedrom
+description:    Please see README.md
+category:       Hardware
+homepage:       https://github.com/expipiplus1/clash-wavedrom#readme
+bug-reports:    https://github.com/expipiplus1/clash-wavedrom/issues
+author:         Joe Hermaszewski
+maintainer:     waves@monoid.al
+copyright:      2020 Joe Hermaszewski
+license:        BSD3
+build-type:     Simple
+extra-source-files:
+    readme.md
+    default.nix
+
+source-repository head
+  type: git
+  location: https://github.com/expipiplus1/clash-wavedrom
+
+library
+  exposed-modules:
+      Clash.WaveDrom
+  other-modules:
+      Paths_clash_wavedrom
+  hs-source-dirs:
+      src
+  build-depends:
+      aeson
+    , aeson-pretty
+    , base
+    , clash-prelude
+    , singletons
+  default-language: Haskell2010
