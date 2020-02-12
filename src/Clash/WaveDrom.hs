@@ -1,4 +1,5 @@
 {-# language LambdaCase #-}
+{-# language GeneralizedNewtypeDeriving #-}
 {-# language ConstraintKinds #-}
 {-# language PolyKinds #-}
 {-# language AllowAmbiguousTypes #-}
@@ -37,6 +38,7 @@ import           Data.Monoid                              ( Ap(..) )
 import           Data.Coerce
 import           Unsafe.Coerce
 import           Data.ByteString.Lazy                     ( ByteString )
+import           Data.Singletons.Prelude.Enum
 import qualified Data.Singletons.TypeLits
 import           Data.Singletons.TypeLits                 ( Sing(SSym)
                                                           , SSymbol
@@ -111,7 +113,7 @@ type B ts = Branch ts
 ----------------------------------------------------------------
 
 data Instant = Instant { char :: Char, data' :: Maybe Text }
-  deriving (Eq)
+  deriving (Eq, Show)
 
 data Waves (t :: T) (a :: Type) where
   Single :: KnownSymbol n => a -> Waves (L n) a
@@ -120,6 +122,13 @@ data Waves (t :: T) (a :: Type) where
 infixr 5 `Cons`
 
 deriving instance Functor (Waves t)
+
+instance (SingI t, Show a) => Show (Waves t a) where
+  show = \case
+    Single a -> "Single " <> show a
+    Nil -> "Nil"
+    Cons w ws -> withSing @t $ \case
+      SBranch (SCons t ts) SSym -> withSingI t (show w) <> " `Cons` " <> withSingI ts (show ws)
 
 instance SingI t => Applicative (Waves t) where
   pure x = withSing @t $ \case
@@ -207,11 +216,23 @@ class ToWave a where
 
 -- | A helper function which fully evaluates the argument, if it contains an
 -- @XException@ then the @Instant@ is replaced with an 'x' for undefined.
-xInstant
+xInstantLeaf
   :: (NFData a, KnownSymbol n) => (a -> Waves (L n) Instant) -> a -> Waves (L n) Instant
-xInstant f a = case maybeHasX a of
+xInstantLeaf f a = case maybeHasX a of
   Nothing -> pure (Instant 'x' Nothing)
   Just i  -> f i
+
+-- | A helper function which evaluates the argument to WHNF, if this results in an
+-- @XException@ then the @Instant@ is replaced with an 'x' for undefined.
+xInstant
+  :: forall a n. (ToWave a, KnownSymbol n)
+  => (a -> Waves (WaveShape a n) Instant)
+  -> a
+  -> Waves (WaveShape a n) Instant
+xInstant f a = case isX a of
+  Left _ ->
+    withSingI (waveShape (Proxy @a) (sing @n)) $ pure (Instant 'x' Nothing)
+  Right a' -> f a'
 
 ----------------------------------------------------------------
 -- Generic @ToWave@
@@ -296,6 +317,38 @@ appendRec (Some x xs) ys = Some x (xs `appendRec` ys)
 -- ToWave instances
 ----------------------------------------------------------------
 
+newtype ShowWave a = ShowWave { unShowWave :: a }
+  deriving newtype (NFData, BitPack)
+
+newtype BitsWave a = BitsWave { unBitsWave :: a }
+  deriving (Generic, NFData, NFDataX, Show, ShowX)
+
+newtype WithBits a = WithBits { unWithBits :: a }
+  deriving (Generic, NFData, NFDataX, Show, ShowX)
+
+instance (NFData a, Show a) => ToWave (ShowWave a) where
+  type WaveShape (ShowWave a) = L
+  toWave = xInstantLeaf $ Single . Instant '=' . Just . tShow . unShowWave
+  waveShape _ SSym = sing
+
+instance (NFData a, BitPack a, KnownNat (BitSize a)) => ToWave (BitsWave a) where
+  type WaveShape (BitsWave a) = WaveShape (BitVector (BitSize a))
+  toWave = xInstant $ toWave . Clash.Prelude.pack . unBitsWave
+  waveShape _ = waveShape (Proxy @(BitVector (BitSize a)))
+
+instance (NFData a, Show a, BitPack a, KnownNat (BitSize a)) => ToWave (WithBits a) where
+  type WaveShape (WithBits a)
+    = B '[WaveShape (ShowWave a) "x", WaveShape (BitsWave a) "bits"]
+  toWave (WithBits x) = toWave (ShowWave x) `Cons` toWave (BitsWave x) `Cons` Nil
+  waveShape _ = SBranch
+    (       waveShape (Proxy @(ShowWave a)) (sing @"x")
+    `SCons` waveShape (Proxy @(BitsWave a)) (sing @"bits")
+    `SCons` SNil
+    )
+
+tShow :: Show a => a -> Text
+tShow = T.pack . show
+
 instance ToWave Bit where
   type WaveShape Bit = L
   toWave = xInstant $ \case
@@ -305,8 +358,10 @@ instance ToWave Bit where
 
 instance ToWave Text where
   type WaveShape Text = L
-  toWave = xInstant $ Single . Instant '=' . Just
+  toWave = xInstantLeaf $ Single . Instant '=' . Just
   waveShape _ SSym = sing
+
+deriving via (ShowWave Integer) instance ToWave Integer
 
 --
 -- Vec, along with some nonsense to get singletons to write indexedAsc.
@@ -353,12 +408,33 @@ vecToWave i = \case
 
 instance (KnownNat n, ToWave a) => ToWave (Vec n a) where
   type WaveShape (Vec n a) = B (IndexedAsc ('Proxy :: Proxy a) 0 n )
-  toWave = vecToWave (sing @0)
+  toWave :: forall s. KnownSymbol s => Vec n a -> Waves (WaveShape (Vec n a) s) Instant
+  toWave v = case isX v of
+               Left _ -> withSingI (waveShape (Proxy @(Vec n a)) (sing @s)) $ pure (Instant 'x' Nothing)
+               Right v' -> vecToWave (sing @0) v'
   waveShape _ s = SBranch (sIndexedAsc (SProxy @a) (sing @0) (sing @n)) s
+
+instance KnownNat n => ToWave (BitVector n) where
+  type WaveShape (BitVector n) = WaveShape (Vec n Bit)
+  -- toWave :: forall s. KnownSymbol s => BitVector n -> Waves (WaveShape (BitVector n) s) Instant
+  -- toWave b = case maybeIsX b of
+  --   Nothing -> withSingI (waveShape (Proxy @(Vec n Bit)) (sing @s)) $ pure (Instant 'x' Nothing)
+  --   Just b' -> toWave @(Vec n Bit) . Clash.Prelude.reverse . Clash.Prelude.unpack $ b'
+  toWave = toWave @(Vec n Bit) . Clash.Prelude.reverse . Clash.Prelude.unpack
+  waveShape _ = waveShape (Proxy @(Vec n Bit))
 
 ----------------------------------------------------------------
 --
 ----------------------------------------------------------------
+
+vecUndefined :: Signal System Foo
+vecUndefined =
+  withClockResetEnable systemClockGen systemResetGen enableGen
+    $ (pure
+        (Foo (errorX "vec")
+             (Bar "hi" (J $ 1 :> 1 :> Clash.Nil))
+        ) :: Signal System _
+      )
 
 test :: Signal System Foo
 test =
@@ -368,6 +444,26 @@ test =
              (Bar "hi" (J $ 1 :> 1 :> Clash.Nil))
         ) :: Signal System _
       )
+
+test' :: Signal System (ShowWave (Unsigned 4))
+test' =
+  withClockResetEnable systemClockGen systemResetGen enableGen
+    $ (ShowWave <$> (let c = register 0 ((\x -> if x >= 3 then errorX "hi" else succ x) <$> c) in c :: Signal System _))
+
+test'' :: Signal System (BitsWave (Unsigned 2))
+test'' =
+  withClockResetEnable systemClockGen systemResetGen enableGen
+    $ (BitsWave <$> (let c = register 0 ((\x -> if x == 3 then errorX "hi" else succ x) <$> c) in c :: Signal System _))
+
+bwUndefined :: Signal System (BitsWave (Unsigned 2))
+bwUndefined =
+  withClockResetEnable systemClockGen systemResetGen enableGen
+    $ (BitsWave <$> (pure (errorX "hi") :: Signal System _))
+
+test''' :: Signal System (WithBits (Unsigned 4))
+test''' =
+  withClockResetEnable systemClockGen systemResetGen enableGen
+    $ (WithBits <$> (let c = register 0 ((\x -> if x == 3 then errorX "hi" else succ x) <$> c) in c :: Signal System _))
 
 wavedrom
   :: forall a dom

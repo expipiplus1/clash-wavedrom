@@ -20,7 +20,7 @@ let
     };
 
   # Any packages to appear in the environment provisioned by nix-shell
-  extraEnvPackages = with haskellPackages; [ ];
+  extraEnvPackages = with haskellPackages; [ cabal-install ];
 
   # Generate a haskell derivation using the cabal2nix tool on `package.yaml`
   drv = let old = haskellPackages.callCabal2nix "" src { };
