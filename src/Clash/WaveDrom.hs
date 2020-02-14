@@ -5,6 +5,7 @@
 {-# language AllowAmbiguousTypes #-}
 {-# language QuantifiedConstraints #-}
 {-# language DeriveAnyClass #-}
+{-# language DeriveFunctor #-}
 {-# language InstanceSigs #-}
 {-# language TypeFamilyDependencies #-}
 {-# language PartialTypeSignatures #-}
@@ -40,11 +41,11 @@ import           Unsafe.Coerce
 import           Data.ByteString.Lazy                     ( ByteString )
 import           Data.Singletons.Prelude.Enum
 import qualified Data.Singletons.TypeLits
-import           Data.Singletons.TypeLits                 ( Sing(SSym)
+import           Data.Singletons.TypeLits                 ( SSymbol(SSym)
                                                           , SSymbol
                                                           )
 import           Data.Singletons.Prelude.List             ( SList
-                                                          , Sing(SNil, SCons)
+                                                          , SList(SNil, SCons)
                                                           , sFoldr
                                                           , Map
                                                           , sMap
@@ -367,8 +368,10 @@ deriving via (ShowWave Integer) instance ToWave Integer
 -- Vec, along with some nonsense to get singletons to write indexedAsc.
 --
 
-data instance Sing :: Proxy a -> Type where
-  SProxy :: Sing ('Proxy :: Proxy a)
+-- TODO: remove this when it's in singletons
+data SProxy :: forall a. Proxy a -> Type where
+  SProxy :: forall a. SProxy ('Proxy @a)
+type instance Sing = SProxy
 
 type SToWave = ToWave
 

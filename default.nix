@@ -9,11 +9,42 @@ let
     "ghc" + pkgs.lib.concatStrings
     (pkgs.lib.splitVersion pkgs.haskellPackages.ghc.version);
 
+  clash = pkgs.fetchFromGitHub {
+    owner = "clash-lang";
+    repo = "clash-compiler";
+    rev = "1b9981724cb104c55f2a6c8ae701f3c8e22a3e0b";
+    sha256 = "1v9jhiyhwpg7n5l3iv8g6kpvryx9j1z86i06b0di6m97xw4cpyp0";
+  };
+
   # Any overrides we require to the specified haskell package set
   haskellPackages = with pkgs.haskell.lib;
     pkgs.haskell.packages.${compiler'}.override {
       overrides = self: super:
-        { } // pkgs.lib.optionalAttrs hoogle {
+        {
+          first-class-families = doJailbreak super.first-class-families;
+
+          ghc-typelits-knownnat = self.callCabal2nix "ghc-typelits-knownnat"
+            (import (clash + "/nix/sources.nix")).ghc-typelits-knownnat { };
+
+          ghc-typelits-extra = self.callCabal2nix "ghc-typelits-extra"
+            (import (clash + "/nix/sources.nix")).ghc-typelits-extra { };
+
+          ghc-typelits-natnormalise =
+            self.callCabal2nix "ghc-typelits-natnormalise"
+            (pkgs.fetchFromGitHub {
+              owner = "clash-lang";
+              repo = "ghc-typelits-natnormalise";
+              rev = "2ca55909cdbaa27abb225b17890171c1bf104cca";
+              sha256 = "1d000ky8yn64f0ygznf5fjhxq6rnvny0h097jz1a2rvagdggydy8";
+            }) { };
+
+          clash-lib = self.callCabal2nix "" (clash + "/clash-lib") { };
+          clash-ghc = self.callCabal2nix "" (clash + "/clash-ghc") { };
+          clash-prelude =
+            doJailbreak (
+            dontCheck (self.callCabal2nix "" (clash + "/clash-prelude") { }));
+          clash-cores = self.callCabal2nix "" (clash + "/clash-cores") { };
+        } // clash // pkgs.lib.optionalAttrs hoogle {
           ghc = super.ghc // { withPackages = super.ghc.withHoogle; };
           ghcWithPackages = self.ghc.withPackages;
         };
