@@ -7,17 +7,7 @@
                 {
                     "wave": "x.",
                     "data": [],
-                    "name": "0"
-                },
-                {
-                    "wave": "x.",
-                    "data": [],
-                    "name": "1"
-                },
-                {
-                    "wave": "x.",
-                    "data": [],
-                    "name": "2"
+                    "name": "4"
                 },
                 {
                     "wave": "x.",
@@ -27,7 +17,17 @@
                 {
                     "wave": "x.",
                     "data": [],
-                    "name": "4"
+                    "name": "2"
+                },
+                {
+                    "wave": "x.",
+                    "data": [],
+                    "name": "1"
+                },
+                {
+                    "wave": "x.",
+                    "data": [],
+                    "name": "0"
                 }
             ],
             [
@@ -46,12 +46,12 @@
                         {
                             "wave": "1.",
                             "data": [],
-                            "name": "0"
+                            "name": "1"
                         },
                         {
                             "wave": "1.",
                             "data": [],
-                            "name": "1"
+                            "name": "0"
                         }
                     ]
                 ]

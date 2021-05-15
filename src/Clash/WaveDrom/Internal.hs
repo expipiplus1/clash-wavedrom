@@ -394,7 +394,7 @@ instance (KnownSymbol lName, KnownSymbol rName, ToWave l, ToWave r) => ToWave (N
 
 
 --
--- Vec, along with some nonsense to get singletons to write indexedAsc.
+-- Vec, along with some nonsense to get singletons to write indexedDsc.
 --
 
 type SToWave = ToWave
@@ -411,35 +411,34 @@ type WaveShapeP (p :: Proxy a) n = WaveShape a n
 $(genDefunSymbols [''WaveShapeP])
 
 $(singletonsOnly [d|
-  indexedAsc :: ToWave a => Proxy a -> Nat -> Nat -> [T]
-  indexedAsc a i n = if n == 0
+  indexedDsc :: ToWave a => Proxy a -> Nat -> [T]
+  indexedDsc a i = if i == 0
              then []
-             else waveShapeP a (show_ i) : indexedAsc a (i+1) (n-1)
+             else waveShapeP a (show_ (i - 1)) : indexedDsc a (i-1)
   |])
 
--- | The positive case of the @IndexedAsc@ equation
-indexedAscPositive
-  :: forall a i n
-   . (1 <= n)
+-- | The positive case of the @IndexedDsc@ equation
+indexedDscPositive
+  :: forall a i
+   . (1 <= i)
   => Proxy a
-  -> IndexedAsc ('Proxy :: Proxy a) i n
-     :~: (WaveShape a (Show_ i) : IndexedAsc ('Proxy :: Proxy a) (i+1) (n-1))
-indexedAscPositive _ = unsafeCoerce Refl
+  -> IndexedDsc ('Proxy :: Proxy a) i
+     :~: (WaveShape a (Show_ (i - 1)) : IndexedDsc ('Proxy :: Proxy a) (i-1))
+indexedDscPositive _ = unsafeCoerce Refl
 
 vecToWave
-  :: forall n a s i
-   . (KnownNat n, ToWave a, KnownSymbol s)
-  => Sing i
-  -> Vec n a
-  -> Waves (B (IndexedAsc ( 'Proxy :: Proxy a) i n) s) Instant
-vecToWave i = \case
+  :: forall i a s
+   . (KnownNat i, ToWave a, KnownSymbol s)
+  => Vec i a
+  -> Waves (B (IndexedDsc ( 'Proxy :: Proxy a) i) s) Instant
+vecToWave = \case
   Clash.Nil       -> Nil
-  Clash.Cons v vs -> case indexedAscPositive @a @i @n Proxy of
-    Refl -> case sShow_ i of
-      SSym -> toWave v `Cons` vecToWave @(n-1) (i %+ sing @1) vs
+  Clash.Cons v vs -> case indexedDscPositive @a @i Proxy of
+    Refl -> case sShow_ (sing @(i - 1)) of
+      SSym -> toWave v `Cons` vecToWave @(i - 1) vs
 
 instance (KnownNat n, ToWave a) => ToWave (Vec n a) where
-  type WaveShape (Vec n a) = B (IndexedAsc ( 'Proxy :: Proxy a) 0 n)
+  type WaveShape (Vec n a) = B (IndexedDsc ( 'Proxy :: Proxy a) n)
   toWave
     :: forall s
      . KnownSymbol s
@@ -448,8 +447,8 @@ instance (KnownNat n, ToWave a) => ToWave (Vec n a) where
   toWave v = case isX v of
     Left _ -> withSingI (waveShape (Proxy @(Vec n a)) (sing @s))
       $ pure (Instant 'x' Nothing)
-    Right v' -> vecToWave (sing @0) v'
-  waveShape _ s = SBranch (sIndexedAsc (SProxy @a) (sing @0) (sing @n)) s
+    Right v' -> vecToWave @n (Clash.reverse v')
+  waveShape _ s = SBranch (sIndexedDsc (SProxy @a) (sing @n)) s
 
 instance KnownNat n => ToWave (BitVector n) where
   type WaveShape (BitVector n) = WaveShape (Vec n Bit)
@@ -513,7 +512,7 @@ wavedromWithReset n name s =
         SomeSymbol (_ :: Proxy nameS) ->
           wavedromWithClock n "" (NamedPair @"rst" @nameS <$> reset <*> s)
 
-newtype WaveDrom = WaveDrom { signal :: [Value] }
+data WaveDrom = WaveDrom { signal :: [Value], config :: Object }
 
 instance ToJSON WaveDrom where
   toJSON wd = flattenUnnamed $ object ["signal" .= toJSON (signal wd)]
