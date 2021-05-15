@@ -1,0 +1,58 @@
+{
+    "signal": [
+        [
+            "foo",
+            {
+                "wave": "x.",
+                "data": [],
+                "name": "0"
+            },
+            {
+                "wave": "x.",
+                "data": [],
+                "name": "1"
+            },
+            {
+                "wave": "x.",
+                "data": [],
+                "name": "2"
+            },
+            {
+                "wave": "x.",
+                "data": [],
+                "name": "3"
+            },
+            {
+                "wave": "x.",
+                "data": [],
+                "name": "4"
+            }
+        ],
+        [
+            "bar",
+            {
+                "wave": "=.",
+                "data": [
+                    "hi"
+                ],
+                "name": "baz"
+            },
+            [
+                "qux",
+                [
+                    "unJ",
+                    {
+                        "wave": "1.",
+                        "data": [],
+                        "name": "0"
+                    },
+                    {
+                        "wave": "1.",
+                        "data": [],
+                        "name": "1"
+                    }
+                ]
+            ]
+        ]
+    ]
+}

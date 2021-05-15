@@ -1,10 +1,10 @@
 cabal-version: 1.12
 
--- This file has been generated from package.yaml by hpack version 0.32.0.
+-- This file has been generated from package.yaml by hpack version 0.34.4.
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 38eb26940e4ee0900971bd8ba7b7b1a70d0170e2e0b5120c17e85c99475c6f4b
+-- hash: 09618c7bc74489bf2eb18b64907dcc3cf91324bc565a988a2ec413f80fc44e9a
 
 name:           clash-wavedrom
 version:        0.0.0.0
@@ -30,13 +30,53 @@ library
   exposed-modules:
       Clash.WaveDrom
   other-modules:
+      Clash.WaveDrom.Internal
       Paths_clash_wavedrom
   hs-source-dirs:
       src
+  ghc-options: -XAllowAmbiguousTypes -XConstraintKinds -XDataKinds -XDefaultSignatures -XDeriveAnyClass -XDeriveFunctor -XDeriveGeneric -XDerivingVia -XFlexibleContexts -XFlexibleInstances -XGADTs -XGeneralizedNewtypeDeriving -XInstanceSigs -XLambdaCase -XMultiParamTypeClasses -XOverloadedStrings -XPartialTypeSignatures -XPolyKinds -XQuantifiedConstraints -XRankNTypes -XRecordWildCards -XScopedTypeVariables -XStandaloneDeriving -XStandaloneKindSignatures -XTemplateHaskell -XTupleSections -XTypeApplications -XTypeFamilies -XTypeFamilyDependencies -XTypeOperators -XUndecidableInstances
   build-depends:
       aeson
     , aeson-pretty
     , base
+    , bytestring
     , clash-prelude
+    , deepseq
+    , ghc-typelits-knownnat
+    , ghc-typelits-natnormalise
+    , lens
+    , lens-aeson
     , singletons
+    , text
+    , vector
+  default-language: Haskell2010
+
+test-suite test
+  type: exitcode-stdio-1.0
+  main-is: Driver.hs
+  other-modules:
+      Tests
+      Paths_clash_wavedrom
+  hs-source-dirs:
+      test
+  ghc-options: -XAllowAmbiguousTypes -XConstraintKinds -XDataKinds -XDefaultSignatures -XDeriveAnyClass -XDeriveFunctor -XDeriveGeneric -XDerivingVia -XFlexibleContexts -XFlexibleInstances -XGADTs -XGeneralizedNewtypeDeriving -XInstanceSigs -XLambdaCase -XMultiParamTypeClasses -XOverloadedStrings -XPartialTypeSignatures -XPolyKinds -XQuantifiedConstraints -XRankNTypes -XRecordWildCards -XScopedTypeVariables -XStandaloneDeriving -XStandaloneKindSignatures -XTemplateHaskell -XTupleSections -XTypeApplications -XTypeFamilies -XTypeFamilyDependencies -XTypeOperators -XUndecidableInstances
+  build-depends:
+      aeson
+    , aeson-pretty
+    , base
+    , bytestring
+    , clash-prelude
+    , clash-wavedrom
+    , deepseq
+    , filepath
+    , ghc-typelits-knownnat
+    , ghc-typelits-natnormalise
+    , lens
+    , lens-aeson
+    , singletons
+    , tasty
+    , tasty-discover
+    , tasty-golden
+    , text
+    , vector
   default-language: Haskell2010

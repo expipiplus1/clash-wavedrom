@@ -1,5 +1,5 @@
 name: clash-wavedrom
-version: '0.0.0.0'
+version: 0.0.0.0
 synopsis: Render wave diagrams with wavedrom
 description: Please see README.md
 category: Hardware
@@ -10,17 +10,70 @@ license: BSD3
 github: expipiplus1/clash-wavedrom
 
 extra-source-files:
-  - readme.md
-  - default.nix
+- readme.md
+- default.nix
 
 dependencies:
- - base
- - clash-prelude
- - aeson
- - aeson-pretty
- - singletons
+- base
+- aeson
+- lens-aeson
+- aeson-pretty
+- bytestring
+- clash-prelude
+- deepseq
+- ghc-typelits-knownnat
+- ghc-typelits-natnormalise
+- lens
+- singletons
+- text
+- vector
 
 library:
   source-dirs: src
   exposed-modules:
-    - Clash.WaveDrom
+  - Clash.WaveDrom
+
+tests:
+  test:
+    main: Driver.hs
+    source-dirs: test
+    dependencies:
+    - base
+    - clash-wavedrom
+    - filepath
+    - tasty
+    - tasty-discover
+    - tasty-golden
+
+ghc-options:
+- -XAllowAmbiguousTypes
+- -XConstraintKinds
+- -XDataKinds
+- -XDefaultSignatures
+- -XDeriveAnyClass
+- -XDeriveFunctor
+- -XDeriveGeneric
+- -XDerivingVia
+- -XFlexibleContexts
+- -XFlexibleInstances
+- -XGADTs
+- -XGeneralizedNewtypeDeriving
+- -XInstanceSigs
+- -XLambdaCase
+- -XMultiParamTypeClasses
+- -XOverloadedStrings
+- -XPartialTypeSignatures
+- -XPolyKinds
+- -XQuantifiedConstraints
+- -XRankNTypes
+- -XRecordWildCards
+- -XScopedTypeVariables
+- -XStandaloneDeriving
+- -XStandaloneKindSignatures
+- -XTemplateHaskell
+- -XTupleSections
+- -XTypeApplications
+- -XTypeFamilies
+- -XTypeFamilyDependencies
+- -XTypeOperators
+- -XUndecidableInstances

@@ -1,0 +1,14 @@
+{
+    "signal": [
+        {
+            "wave": "====",
+            "data": [
+                "hello",
+                "world",
+                "foo",
+                "bar"
+            ],
+            "name": "out"
+        }
+    ]
+}
