@@ -27,6 +27,8 @@ renderToSVG "gray.svg" (wavedromWithClock 10 "" readmeSignal)
 
 ![Gray code wave diagram](./images/gray.svg)
 
+---------------
+
 It can render the `Show` representation alongside the `BitPack` representation
 very easily.
 
@@ -44,3 +46,7 @@ renderToSVG
 ```
 
 ![Either counter wave diagram](./images/either.svg)
+
+Observe the undefined bits being handled correctly.
+
+---------------
