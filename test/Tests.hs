@@ -160,4 +160,8 @@ readmeSignal =
 ----------------------------------------------------------------
 
 signalTest :: TestName -> LBS.ByteString -> TestTree
-signalTest name = goldenVsString name ("test/data" </> name <.> "json") . pure
+signalTest name =
+  goldenVsStringDiff name
+                     (\ref new -> ["diff", "-u", ref, new])
+                     ("test/data" </> name <.> "json")
+    . pure
