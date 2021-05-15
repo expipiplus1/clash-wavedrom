@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 9cda2e6beaf1136acc5dbccf8e611bdcd0cd2ec85306726889dfda0be7f74ec0
+-- hash: f93df74ac1acc0637ab1b000d0907df92f490b8f969d387d62703350ebf94a17
 
 name:           clash-wavedrom
 version:        0.0.0.0
@@ -47,7 +47,9 @@ library
     , lens
     , lens-aeson
     , singletons
+    , temporary
     , text
+    , typed-process
     , vector
   default-language: Haskell2010
 
@@ -78,6 +80,8 @@ test-suite test
     , tasty
     , tasty-discover
     , tasty-golden
+    , temporary
     , text
+    , typed-process
     , vector
   default-language: Haskell2010

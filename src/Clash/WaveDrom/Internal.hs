@@ -463,9 +463,6 @@ deriving via ShowWave (Index n) instance ToWave (Index n)
 --
 ----------------------------------------------------------------
 
-render :: WaveDrom -> ByteString
-render = encodePretty
-
 -- | Generate a wave diagram with no clock or reset
 wavedrom
   :: forall a dom

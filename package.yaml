@@ -16,7 +16,6 @@ extra-source-files:
 dependencies:
 - base
 - aeson
-- lens-aeson
 - aeson-pretty
 - bytestring
 - clash-prelude
@@ -24,8 +23,11 @@ dependencies:
 - ghc-typelits-knownnat
 - ghc-typelits-natnormalise
 - lens
+- lens-aeson
 - singletons
+- temporary
 - text
+- typed-process
 - vector
 
 library:

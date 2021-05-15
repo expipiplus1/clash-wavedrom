@@ -142,8 +142,8 @@ newtype J n = J
 ----------------------------------------------------------------
 
 data Gray n = Gray
-  { cnt  :: Unsigned n
-  , gray :: BitVector n
+  { count :: Unsigned n
+  , gray  :: BitVector n
   }
   deriving stock Generic
   deriving anyclass (NFData, ToWave)
@@ -151,9 +151,9 @@ data Gray n = Gray
 readmeSignal :: Signal System (Gray 3)
 readmeSignal =
   withClockResetEnable systemClockGen systemResetGen enableGen
-    $ let cnt  = register 0 (countSucc <$> cnt)
-          gray = (\x -> (x `shiftR` 1) `xor` x) . bitCoerce <$> cnt
-      in  Gray <$> cnt <*> gray
+    $ let count = register 0 (countSucc <$> count)
+          gray  = (\x -> (x `shiftR` 1) `xor` x) . bitCoerce <$> count
+      in  Gray <$> count <*> gray
 
 ----------------------------------------------------------------
 --
