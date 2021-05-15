@@ -63,7 +63,7 @@ test_wavedrom =
         }
       )
     )
-  , signalTest "readme" (render $ wavedromWithClock 10 "" readmeSignal)
+  , signalTest "readme" (render $ wavedromWithReset 10 "" readmeSignal)
   ]
 
 simple :: Signal System Bit

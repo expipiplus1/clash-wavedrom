@@ -22,7 +22,7 @@ readmeSignal =
 ```
 
 ```haskell
-renderToSVG "gray.svg" (wavedromWithClock 10 "" readmeSignal)
+renderToSVG "gray.svg" (wavedromWithReset 10 "" readmeSignal)
 ```
 
 ![Gray code wave diagram](./images/gray.svg)
