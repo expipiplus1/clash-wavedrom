@@ -8,46 +8,43 @@
             "data": [],
             "name": "clk"
         },
+        {
+            "wave": "=.========",
+            "data": [
+                "Right 0",
+                "Right 1",
+                "Right 2",
+                "Left 0",
+                "Left 1",
+                "Left 2",
+                "Left 3",
+                "Left 4",
+                "Left 5"
+            ],
+            "name": "x"
+        },
         [
-            "either",
+            "bits",
             {
-                "wave": "=.========",
-                "data": [
-                    "Right 0",
-                    "Right 1",
-                    "Right 2",
-                    "Left 0",
-                    "Left 1",
-                    "Left 2",
-                    "Left 3",
-                    "Left 4",
-                    "Left 5"
-                ],
-                "name": "x"
+                "wave": "1...0.....",
+                "data": [],
+                "name": "3"
             },
-            [
-                "bits",
-                {
-                    "wave": "1...0.....",
-                    "data": [],
-                    "name": "3"
-                },
-                {
-                    "wave": "0..10...1.",
-                    "data": [],
-                    "name": "2"
-                },
-                {
-                    "wave": "0.10..1.0.",
-                    "data": [],
-                    "name": "1"
-                },
-                {
-                    "wave": "x...010101",
-                    "data": [],
-                    "name": "0"
-                }
-            ]
+            {
+                "wave": "0..10...1.",
+                "data": [],
+                "name": "2"
+            },
+            {
+                "wave": "0.10..1.0.",
+                "data": [],
+                "name": "1"
+            },
+            {
+                "wave": "x...010101",
+                "data": [],
+                "name": "0"
+            }
         ]
     ]
 }

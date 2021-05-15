@@ -58,7 +58,7 @@ test_wavedrom =
   , signalTest
     "either"
     (render
-      ((wavedromWithClock 10 "either" (WithBits <$> eitherSignal))
+      ((wavedromWithClock 10 "" (WithBits <$> eitherSignal))
         { config = object ["hscale" .= (2 :: Int)]
         }
       )
