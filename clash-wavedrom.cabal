@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: 09618c7bc74489bf2eb18b64907dcc3cf91324bc565a988a2ec413f80fc44e9a
+-- hash: 9cda2e6beaf1136acc5dbccf8e611bdcd0cd2ec85306726889dfda0be7f74ec0
 
 name:           clash-wavedrom
 version:        0.0.0.0
@@ -69,6 +69,7 @@ test-suite test
     , clash-wavedrom
     , deepseq
     , filepath
+    , ghc-typelits-extra
     , ghc-typelits-knownnat
     , ghc-typelits-natnormalise
     , lens

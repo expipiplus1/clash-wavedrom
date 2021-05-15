@@ -41,6 +41,7 @@ tests:
     - base
     - clash-wavedrom
     - filepath
+    - ghc-typelits-extra
     - tasty
     - tasty-discover
     - tasty-golden

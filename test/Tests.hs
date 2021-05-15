@@ -5,6 +5,7 @@
 
 {-# OPTIONS_GHC -fplugin GHC.TypeLits.KnownNat.Solver #-}
 {-# OPTIONS_GHC -fplugin GHC.TypeLits.Normalise       #-}
+{-# OPTIONS_GHC -fplugin GHC.TypeLits.Extra.Solver    #-}
 
 module Tests where
 
@@ -62,6 +63,7 @@ test_wavedrom =
         }
       )
     )
+  , signalTest "readme" (render $ wavedromWithClock 10 "" readmeSignal)
   ]
 
 simple :: Signal System Bit
@@ -134,6 +136,24 @@ newtype J n = J
   }
   deriving (Generic)
   deriving anyclass (NFData, ToWave)
+
+----------------------------------------------------------------
+-- Readme
+----------------------------------------------------------------
+
+data Gray n = Gray
+  { cnt  :: Unsigned n
+  , gray :: BitVector n
+  }
+  deriving stock Generic
+  deriving anyclass (NFData, ToWave)
+
+readmeSignal :: Signal System (Gray 3)
+readmeSignal =
+  withClockResetEnable systemClockGen systemResetGen enableGen
+    $ let cnt  = register 0 (countSucc <$> cnt)
+          gray = (\x -> (x `shiftR` 1) `xor` x) . bitCoerce <$> cnt
+      in  Gray <$> cnt <*> gray
 
 ----------------------------------------------------------------
 --

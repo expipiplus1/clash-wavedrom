@@ -457,6 +457,7 @@ instance KnownNat n => ToWave (BitVector n) where
   waveShape _ = waveShape (Proxy @(Vec n Bit))
 
 deriving via ShowWave (Unsigned n) instance ToWave (Unsigned n)
+deriving via ShowWave (Index n) instance ToWave (Index n)
 
 ----------------------------------------------------------------
 --
