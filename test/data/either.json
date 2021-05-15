@@ -1,4 +1,7 @@
 {
+    "config": {
+        "hscale": 2
+    },
     "signal": [
         {
             "wave": "p.........",

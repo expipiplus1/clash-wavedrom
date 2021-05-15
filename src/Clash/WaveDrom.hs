@@ -7,7 +7,7 @@ module Clash.WaveDrom
   , ShowWave(..)
   , BitsWave(..)
   , WithBits(..)
-  , WaveDrom
+  , WaveDrom(..)
   ) where
 
-import Clash.WaveDrom.Internal
+import           Clash.WaveDrom.Internal

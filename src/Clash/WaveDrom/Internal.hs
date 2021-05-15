@@ -65,6 +65,7 @@ import           Debug.Trace
 import           GHC.Generics
 import           GHC.TypeLits
 import           Unsafe.Coerce
+import Data.Aeson.Types (emptyObject)
 
 ----------------------------------------------------------------
 -- The shape of WaveDrom waves
@@ -472,8 +473,9 @@ wavedrom
   -> String
   -> Signal dom a
   -> WaveDrom
-wavedrom n name sig = WaveDrom . pure $ case someSymbolVal name of
-  SomeSymbol (_ :: Proxy s) -> toJSON (signalToWave @_ @_ @s n sig)
+wavedrom n name sig = WaveDrom emptyObject $ case someSymbolVal name of
+  SomeSymbol (_ :: Proxy s) ->
+    flattenUnnamed (pure (toJSON (signalToWave @_ @_ @s n sig)))
 
 -- | Generate a wave diagram with a clock at the top
 wavedromWithClock
@@ -484,7 +486,7 @@ wavedromWithClock
   -> Signal dom a
   -> WaveDrom
 wavedromWithClock n name sig = case wavedrom n name sig of
-  WaveDrom w -> WaveDrom (toJSON clockWave : w)
+  WaveDrom c w -> WaveDrom c (toJSON clockWave : w)
  where
   clockWave = simplify $ Single @"clk"
     (replicate
@@ -512,20 +514,23 @@ wavedromWithReset n name s =
         SomeSymbol (_ :: Proxy nameS) ->
           wavedromWithClock n "" (NamedPair @"rst" @nameS <$> reset <*> s)
 
-data WaveDrom = WaveDrom { signal :: [Value], config :: Object }
+data WaveDrom = WaveDrom
+  { config :: Value
+  , signal :: [Value]
+  }
+  deriving Generic
+  deriving anyclass ToJSON
 
-instance ToJSON WaveDrom where
-  toJSON wd = flattenUnnamed $ object ["signal" .= toJSON (signal wd)]
-
-flattenUnnamed :: Value -> Value
-flattenUnnamed = transform $ \case
-  Array xs -> Array $ V.concatMap
-    (\case
-      Array vs | String "" : vs' <- V.toList vs -> V.tail vs
-      x -> V.singleton x
-    )
-    xs
-  x -> x
+flattenUnnamed :: [Value] -> [Value]
+flattenUnnamed =
+  let go :: Value -> Value
+      go = \case
+        Array xs -> Array $ V.concatMap inner xs
+        x        -> x
+      inner = \case
+        Array vs | String "" : vs' <- V.toList vs -> V.tail vs
+        x -> V.singleton x
+  in  Prelude.concatMap (V.toList . inner) . fmap (transform go)
 
 signalToWave
   :: forall a dom n

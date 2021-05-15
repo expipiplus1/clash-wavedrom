@@ -8,11 +8,15 @@
 
 module Tests where
 
+import           Clash.Class.Counter
 import qualified Clash.Explicit.Prelude        as Clash
 import           Clash.Prelude
 import           Clash.WaveDrom
 import           Control.DeepSeq
 import           Control.Exception              ( evaluate )
+import           Data.Aeson                     ( (.=)
+                                                , object
+                                                )
 import           Data.Bits
 import qualified Data.ByteString.Lazy          as LBS
 import           Data.Text                      ( Text )
@@ -22,7 +26,6 @@ import           System.FilePath                ( (<.>)
 import           Test.Tasty
 import           Test.Tasty.Golden
 import           Test.Tasty.Golden.Advanced     ( goldenTest )
-import Clash.Class.Counter
 
 test_wavedrom :: [TestTree]
 test_wavedrom =
@@ -53,7 +56,12 @@ test_wavedrom =
   , signalTest "resetCountNamed"  (render $ wavedromWithReset 10 "cnt" counter)
   , signalTest
     "either"
-    (render $ wavedromWithClock 10 "either" (WithBits <$> eitherSignal))
+    (render
+      ((wavedromWithClock 10 "either" (WithBits <$> eitherSignal))
+        { config = object ["hscale" .= (2 :: Int)]
+        }
+      )
+    )
   ]
 
 simple :: Signal System Bit
