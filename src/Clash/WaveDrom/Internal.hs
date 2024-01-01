@@ -517,7 +517,9 @@ data WaveDrom = WaveDrom
   , signal :: [Value]
   }
   deriving Generic
+  deriving Eq
   deriving anyclass ToJSON
+  deriving anyclass FromJSON
 
 flattenUnnamed :: [Value] -> [Value]
 flattenUnnamed =
