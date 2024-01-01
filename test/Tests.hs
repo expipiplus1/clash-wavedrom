@@ -17,6 +17,7 @@ import           Control.DeepSeq
 import           Control.Exception              ( evaluate )
 import           Data.Aeson                     ( (.=)
                                                 , object
+                                                , decode
                                                 )
 import           Data.Bits
 import qualified Data.ByteString.Lazy          as LBS
@@ -160,8 +161,15 @@ readmeSignal =
 ----------------------------------------------------------------
 
 signalTest :: TestName -> LBS.ByteString -> TestTree
-signalTest name =
-  goldenVsStringDiff name
-                     (\ref new -> ["diff", "-u", ref, new])
-                     ("test/data" </> name <.> "json")
-    . pure
+signalTest name input =
+  goldenTest
+    name
+    (LBS.readFile ("test/data" </> name <.> "json"))
+    (pure input)
+    (\a b -> return $
+      if (decode a :: Maybe WaveDrom) == decode b then
+        Nothing
+      else
+        Just "Did not match"
+    )
+    (const (pure ()))
