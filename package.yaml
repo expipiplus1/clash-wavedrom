@@ -24,7 +24,7 @@ dependencies:
 - ghc-typelits-natnormalise
 - lens
 - lens-aeson
-- singletons
+- singletons < 3.0
 - temporary
 - text
 - typed-process

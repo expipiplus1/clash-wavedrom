@@ -4,7 +4,7 @@ cabal-version: 1.12
 --
 -- see: https://github.com/sol/hpack
 --
--- hash: f93df74ac1acc0637ab1b000d0907df92f490b8f969d387d62703350ebf94a17
+-- hash: ff6d0fb3832eed6666f32f0a48563f2def3fcd24ebbe36638e4ef35602ce2a5c
 
 name:           clash-wavedrom
 version:        0.0.0.0
@@ -46,7 +46,7 @@ library
     , ghc-typelits-natnormalise
     , lens
     , lens-aeson
-    , singletons
+    , singletons <3.0
     , temporary
     , text
     , typed-process
@@ -76,7 +76,7 @@ test-suite test
     , ghc-typelits-natnormalise
     , lens
     , lens-aeson
-    , singletons
+    , singletons <3.0
     , tasty
     , tasty-discover
     , tasty-golden
